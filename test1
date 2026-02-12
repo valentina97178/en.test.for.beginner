@@ -1,0 +1,1043 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Star, Heart, Backpack, ChevronRight, Sword, Volume2, VolumeX, Play, Clock, BookOpen, Trophy, Sparkles } from 'lucide-react';
+
+// --- 自訂 SVG 繪圖元件 ---
+const BunnyNPC = ({ className }) => (
+  <svg viewBox="0 0 100 100" className={className}>
+    <ellipse cx="35" cy="30" rx="12" ry="25" fill="#fff" stroke="#475569" strokeWidth="4"/>
+    <ellipse cx="35" cy="30" rx="5" ry="15" fill="#fbcfe8"/>
+    <ellipse cx="65" cy="30" rx="12" ry="25" fill="#fff" stroke="#475569" strokeWidth="4"/>
+    <ellipse cx="65" cy="30" rx="5" ry="15" fill="#fbcfe8"/>
+    <circle cx="50" cy="70" r="30" fill="#fff" stroke="#475569" strokeWidth="4"/>
+    <circle cx="40" cy="65" r="3.5" fill="#475569"/>
+    <circle cx="60" cy="65" r="3.5" fill="#475569"/>
+    <ellipse cx="30" cy="70" rx="6" ry="4" fill="#fbcfe8"/>
+    <ellipse cx="70" cy="70" rx="6" ry="4" fill="#fbcfe8"/>
+    <path d="M 46 72 Q 50 78 54 72" fill="none" stroke="#475569" strokeWidth="3" strokeLinecap="round"/>
+  </svg>
+);
+
+const SherryGirl = ({ className }) => (
+  <svg viewBox="0 0 100 100" className={className}>
+    <path d="M 20 40 Q 50 10 80 40 L 85 85 L 15 85 Z" fill="#78350f"/>
+    <circle cx="50" cy="55" r="28" fill="#ffedd5" stroke="#475569" strokeWidth="4"/>
+    <path d="M 22 55 Q 50 20 78 55 Q 50 40 22 55" fill="#92400e"/>
+    <circle cx="38" cy="55" r="4" fill="#475569"/>
+    <circle cx="62" cy="55" r="4" fill="#475569"/>
+    <circle cx="37" cy="54" r="1.5" fill="#fff"/>
+    <circle cx="61" cy="54" r="1.5" fill="#fff"/>
+    <ellipse cx="28" cy="60" rx="5" ry="3" fill="#fbcfe8"/>
+    <ellipse cx="72" cy="60" rx="5" ry="3" fill="#fbcfe8"/>
+    <polygon points="15,45 50,5 85,45" fill="#ec4899" stroke="#475569" strokeWidth="4" strokeLinejoin="round"/>
+    <polygon points="5,45 95,45 85,52 15,52" fill="#be185d" stroke="#475569" strokeWidth="4" strokeLinejoin="round"/>
+    <circle cx="50" cy="5" r="6" fill="#fef08a" stroke="#475569" strokeWidth="3"/>
+  </svg>
+);
+
+const Monster = ({ char, isHurt, isWrong, className }) => (
+  <svg viewBox="0 0 100 100" className={className}>
+    <polygon points="30,45 20,15 45,35" fill="#a855f7" stroke="#475569" strokeWidth="4" strokeLinejoin="round"/>
+    <polygon points="70,45 80,15 55,35" fill="#a855f7" stroke="#475569" strokeWidth="4" strokeLinejoin="round"/>
+    <path d="M 15 55 C 15 20, 85 20, 85 55 C 95 90, 75 95, 50 95 C 25 95, 5 90, 15 55 Z" fill={isHurt ? "#fca5a5" : (isWrong ? "#fde047" : "#d8b4fe")} stroke="#475569" strokeWidth="4"/>
+    {isHurt || isWrong ? (
+      <>
+        <path d="M 30 45 L 40 55 M 30 55 L 40 45" stroke="#475569" strokeWidth="4" strokeLinecap="round"/>
+        <path d="M 60 45 L 70 55 M 60 55 L 70 45" stroke="#475569" strokeWidth="4" strokeLinecap="round"/>
+        <ellipse cx="50" cy="60" rx="8" ry="12" fill="#475569" />
+      </>
+    ) : (
+      <>
+        <path d="M 30 45 L 40 50 L 30 55" fill="none" stroke="#475569" strokeWidth="3" strokeLinecap="round"/>
+        <path d="M 70 45 L 60 50 L 70 55" fill="none" stroke="#475569" strokeWidth="3" strokeLinecap="round"/>
+        <path d="M 45 60 Q 50 55 55 60" fill="none" stroke="#475569" strokeWidth="3" strokeLinecap="round"/>
+      </>
+    )}
+    <circle cx="50" cy="75" r="16" fill="#fff" stroke="#475569" strokeWidth="3"/>
+    <text x="50%" y="82%" dominantBaseline="middle" textAnchor="middle" fontSize="22" fontWeight="900" fill="#475569" fontFamily="serif">{char}</text>
+  </svg>
+);
+
+const Crystal = ({ className, onClick }) => (
+  <svg viewBox="0 0 100 100" className={className} onClick={onClick}>
+    <polygon points="50,5 90,40 50,95 10,40" fill="#a78bfa" stroke="#f3e8ff" strokeWidth="3" strokeLinejoin="round"/>
+    <polygon points="50,5 90,40 70,40 50,20" fill="#c084fc" />
+    <polygon points="50,5 50,95 10,40" fill="#8b5cf6" opacity="0.6"/>
+    <polygon points="50,20 70,40 30,40" fill="#e9d5ff" opacity="0.9"/>
+    <polygon points="50,95 70,40 30,40" fill="#c084fc" opacity="0.5"/>
+    <circle cx="50" cy="40" r="8" fill="#fff" opacity="0.8" className="animate-pulse"/>
+  </svg>
+);
+
+// --- 水果與動物 SVG (省略重複，保持原樣) ---
+const Apple = ({className}) => (<svg viewBox="0 0 100 100" className={className}><path d="M50 25 C20 0 0 45 20 75 C30 95 70 95 80 75 C100 45 80 0 50 25 Z" fill="#ef4444" stroke="#334155" strokeWidth="4"/><path d="M50 25 Q50 5 65 5 Q75 10 65 25 Z" fill="#22c55e" stroke="#334155" strokeWidth="4"/><path d="M50 25 L55 15" stroke="#78350f" strokeWidth="4" strokeLinecap="round"/></svg>);
+const Blueberry = ({className}) => (<svg viewBox="0 0 100 100" className={className}><circle cx="50" cy="55" r="35" fill="#3b82f6" stroke="#334155" strokeWidth="4"/><path d="M35 30 L65 30 L50 45 Z" fill="#1e3a8a" stroke="#334155" strokeWidth="3" strokeLinejoin="round"/><circle cx="40" cy="45" r="4" fill="#60a5fa"/></svg>);
+const Banana = ({className}) => (<svg viewBox="0 0 100 100" className={className}><path d="M 15 85 Q 40 105 75 80 Q 95 60 85 30 Q 75 40 70 65 Q 50 85 15 75 Z" fill="#facc15" stroke="#334155" strokeWidth="4" strokeLinejoin="round"/><path d="M 85 30 L 90 20 L 80 25" fill="#78350f" stroke="#334155" strokeWidth="3" strokeLinejoin="round"/></svg>);
+const Grape = ({className}) => (<svg viewBox="0 0 100 100" className={className}><circle cx="50" cy="30" r="15" fill="#a855f7" stroke="#334155" strokeWidth="3"/><circle cx="35" cy="45" r="15" fill="#a855f7" stroke="#334155" strokeWidth="3"/><circle cx="65" cy="45" r="15" fill="#a855f7" stroke="#334155" strokeWidth="3"/><circle cx="50" cy="60" r="15" fill="#a855f7" stroke="#334155" strokeWidth="3"/><circle cx="50" cy="78" r="12" fill="#a855f7" stroke="#334155" strokeWidth="3"/><path d="M50 15 L50 5" stroke="#78350f" strokeWidth="4" strokeLinecap="round"/><path d="M50 10 Q65 0 70 15 Z" fill="#22c55e" stroke="#334155" strokeWidth="3"/></svg>);
+const OrangeFruit = ({className}) => (<svg viewBox="0 0 100 100" className={className}><circle cx="50" cy="55" r="40" fill="#f97316" stroke="#334155" strokeWidth="4"/><circle cx="50" cy="20" r="3" fill="#78350f"/><path d="M50 20 Q65 5 75 25 Q60 30 50 20 Z" fill="#22c55e" stroke="#334155" strokeWidth="3"/></svg>);
+const Melon = ({className}) => (<svg viewBox="0 0 100 100" className={className}><circle cx="50" cy="55" r="40" fill="#4ade80" stroke="#334155" strokeWidth="4"/><path d="M20 35 Q50 65 80 35" fill="none" stroke="#22c55e" strokeWidth="4" strokeLinecap="round"/><path d="M30 25 Q50 45 70 25" fill="none" stroke="#22c55e" strokeWidth="4" strokeLinecap="round"/><path d="M20 75 Q50 45 80 75" fill="none" stroke="#22c55e" strokeWidth="4" strokeLinecap="round"/><path d="M50 15 L50 5" stroke="#78350f" strokeWidth="4" strokeLinecap="round"/></svg>);
+const Strawberry = ({className}) => (<svg viewBox="0 0 100 100" className={className}><path d="M50 90 C20 70 20 30 30 20 C40 10 60 10 70 20 C80 30 80 70 50 90 Z" fill="#ef4444" stroke="#334155" strokeWidth="4"/><circle cx="40" cy="40" r="2" fill="#fef08a"/><circle cx="60" cy="45" r="2" fill="#fef08a"/><circle cx="50" cy="60" r="2" fill="#fef08a"/><circle cx="35" cy="65" r="2" fill="#fef08a"/><circle cx="65" cy="65" r="2" fill="#fef08a"/><path d="M30 20 Q50 35 70 20 Q50 10 30 20 Z" fill="#22c55e" stroke="#334155" strokeWidth="3"/></svg>);
+const Peach = ({className}) => (<svg viewBox="0 0 100 100" className={className}><path d="M50 90 C10 70 10 20 40 20 C50 20 50 30 50 30 C50 30 50 20 60 20 C90 20 90 70 50 90 Z" fill="#fbcfe8" stroke="#334155" strokeWidth="4"/><path d="M50 30 Q45 60 50 90" fill="none" stroke="#f472b6" strokeWidth="3"/><path d="M40 20 Q50 5 60 15 Z" fill="#22c55e" stroke="#334155" strokeWidth="3"/></svg>);
+const Lemon = ({className}) => (<svg viewBox="0 0 100 100" className={className}><ellipse cx="50" cy="50" rx="40" ry="25" fill="#fde047" stroke="#334155" strokeWidth="4" transform="rotate(-30 50 50)"/><circle cx="15" cy="70" r="3" fill="#eab308"/><circle cx="85" cy="30" r="3" fill="#eab308"/></svg>);
+
+const Cat = ({className}) => (<svg viewBox="0 0 100 100" className={className}><polygon points="20,25 40,45 20,60" fill="#f97316" stroke="#475569" strokeWidth="3" strokeLinejoin="round"/><polygon points="80,25 60,45 80,60" fill="#f97316" stroke="#475569" strokeWidth="3" strokeLinejoin="round"/><circle cx="50" cy="60" r="35" fill="#fdba74" stroke="#475569" strokeWidth="4"/><circle cx="35" cy="55" r="4" fill="#475569"/><circle cx="65" cy="55" r="4" fill="#475569"/><path d="M 45 65 L 50 70 L 55 65" fill="none" stroke="#475569" strokeWidth="3" strokeLinecap="round"/><path d="M 15 60 L 25 63 M 15 68 L 25 66" stroke="#475569" strokeWidth="2" strokeLinecap="round"/><path d="M 85 60 L 75 63 M 85 68 L 75 66" stroke="#475569" strokeWidth="2" strokeLinecap="round"/></svg>);
+const Dog = ({className}) => (<svg viewBox="0 0 100 100" className={className}><path d="M 20 40 Q 5 70 20 85 Q 30 55 40 40" fill="#a8a29e" stroke="#475569" strokeWidth="3" strokeLinejoin="round"/><path d="M 80 40 Q 95 70 80 85 Q 70 55 60 40" fill="#a8a29e" stroke="#475569" strokeWidth="3" strokeLinejoin="round"/><circle cx="50" cy="55" r="35" fill="#f5f5f4" stroke="#475569" strokeWidth="4"/><ellipse cx="50" cy="65" rx="15" ry="10" fill="#e7e5e4" stroke="#475569" strokeWidth="2"/><circle cx="50" cy="62" r="5" fill="#475569"/><circle cx="35" cy="50" r="4" fill="#475569"/><circle cx="65" cy="50" r="4" fill="#475569"/></svg>);
+const Bird = ({className}) => (<svg viewBox="0 0 100 100" className={className}><circle cx="50" cy="55" r="35" fill="#60a5fa" stroke="#475569" strokeWidth="4"/><circle cx="50" cy="55" r="25" fill="#93c5fd"/><polygon points="40,55 60,55 50,70" fill="#facc15" stroke="#475569" strokeWidth="3" strokeLinejoin="round"/><circle cx="35" cy="45" r="4" fill="#475569"/><circle cx="65" cy="45" r="4" fill="#475569"/><path d="M 15 55 Q 5 40 20 30" fill="none" stroke="#60a5fa" strokeWidth="6" strokeLinecap="round"/><path d="M 85 55 Q 95 40 80 30" fill="none" stroke="#60a5fa" strokeWidth="6" strokeLinecap="round"/></svg>);
+const Pig = ({className}) => (<svg viewBox="0 0 100 100" className={className}><polygon points="20,20 40,40 20,50" fill="#f472b6" stroke="#475569" strokeWidth="3" strokeLinejoin="round"/><polygon points="80,20 60,40 80,50" fill="#f472b6" stroke="#475569" strokeWidth="3" strokeLinejoin="round"/><circle cx="50" cy="60" r="35" fill="#fbcfe8" stroke="#475569" strokeWidth="4"/><ellipse cx="50" cy="65" rx="15" ry="10" fill="#f472b6" stroke="#475569" strokeWidth="3"/><circle cx="45" cy="65" r="2" fill="#475569"/><circle cx="55" cy="65" r="2" fill="#475569"/><circle cx="35" cy="50" r="4" fill="#475569"/><circle cx="65" cy="50" r="4" fill="#475569"/></svg>);
+const Bear = ({className}) => (<svg viewBox="0 0 100 100" className={className}><circle cx="25" cy="30" r="15" fill="#b45309" stroke="#475569" strokeWidth="3"/><circle cx="25" cy="30" r="8" fill="#d97706"/><circle cx="75" cy="30" r="15" fill="#b45309" stroke="#475569" strokeWidth="3"/><circle cx="75" cy="30" r="8" fill="#d97706"/><circle cx="50" cy="60" r="35" fill="#d97706" stroke="#475569" strokeWidth="4"/><ellipse cx="50" cy="70" rx="15" ry="12" fill="#fef3c7" stroke="#475569" strokeWidth="3"/><circle cx="50" cy="65" r="5" fill="#475569"/><path d="M 45 72 Q 50 78 55 72" fill="none" stroke="#475569" strokeWidth="3" strokeLinecap="round"/><circle cx="35" cy="50" r="4" fill="#475569"/><circle cx="65" cy="50" r="4" fill="#475569"/></svg>);
+
+// --- CSS 動畫定義 ---
+const customStyles = `
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px) rotate(-5deg); }
+    75% { transform: translateX(10px) rotate(5deg); }
+  }
+  .anim-shake { animation: shake 0.4s ease-in-out; }
+  
+  @keyframes flyToBag {
+    0% { transform: scale(1) translateY(0) rotate(0); opacity: 1; }
+    50% { transform: scale(1.2) translateY(-20px) rotate(15deg); opacity: 1; }
+    100% { transform: scale(0) translateY(-100px) rotate(45deg); opacity: 0; }
+  }
+  .anim-fly-bag { animation: flyToBag 0.8s forwards; z-index: 50; }
+
+  @keyframes slashEffect {
+    0% { clip-path: polygon(0 0, 0 0, 0 100%, 0% 100%); opacity: 1; }
+    50% { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 1; }
+    100% { opacity: 0; transform: scale(1.1); }
+  }
+  .anim-slash { animation: slashEffect 0.5s ease-out forwards; }
+
+  @keyframes floatUp {
+    0% { transform: translateY(0) scale(0.5); opacity: 0; }
+    20% { transform: translateY(-20px) scale(1.2); opacity: 1; }
+    100% { transform: translateY(-60px) scale(1); opacity: 0; }
+  }
+  .anim-float-up { animation: floatUp 1s forwards; }
+
+  .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.4); border-radius: 10px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: #fbcfe8; border-radius: 10px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #f472b6; }
+`;
+
+export default function App() {
+  const [hasStarted, setHasStarted] = useState(false);
+  const [isAudioMuted, setIsAudioMuted] = useState(false);
+  // 新增 mid5 (水晶劇情) 與 q6 (分級試煉)
+  const [scene, setScene] = useState('intro'); // intro, q1, mid1, q2, mid2, q3, mid3, q4, mid4, q5, mid5, q6, outro, results
+  const [mode, setMode] = useState('dialogue');
+  const [dialogueIndex, setDialogueIndex] = useState(0);
+  const [stars, setStars] = useState(0);
+  const [questionIdx, setQuestionIdx] = useState(0);
+  
+  // 互動特效與計時狀態
+  const [activeAnimIdx, setActiveAnimIdx] = useState(null);
+  const [wrongAnimIdx, setWrongAnimIdx] = useState(null);
+  const [showCombo, setShowCombo] = useState(false);
+  const [monsterHp, setMonsterHp] = useState(10);
+  const [isSlashing, setIsSlashing] = useState(false);
+  const [bridgeFilled, setBridgeFilled] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(5.0);
+
+  // 紀錄錯題分析
+  const [mistakes, setMistakes] = useState([]);
+
+  // --- 音效引擎 ---
+  const audioCtxRef = useRef(null);
+  const bgmRef = useRef(null);
+
+  useEffect(() => {
+    bgmRef.current = new Audio("https://assets.mixkit.co/music/preview/mixkit-quirky-puzzle-game-899.mp3");
+    bgmRef.current.loop = true;
+    bgmRef.current.volume = 0.15; 
+    return () => { bgmRef.current?.pause(); };
+  }, []);
+
+  useEffect(() => {
+    if (bgmRef.current) bgmRef.current.muted = isAudioMuted;
+  }, [isAudioMuted]);
+
+  const initAudio = () => {
+    if (!audioCtxRef.current) audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtxRef.current.state === 'suspended') audioCtxRef.current.resume();
+    if (!isAudioMuted) bgmRef.current?.play().catch(()=>console.log("BGM prevented"));
+    setHasStarted(true);
+  };
+
+  const playSFX = (type) => {
+    if (isAudioMuted || !audioCtxRef.current) return;
+    const ctx = audioCtxRef.current;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    const now = ctx.currentTime;
+
+    if (type === 'pop') {
+      osc.type = 'sine'; osc.frequency.setValueAtTime(400, now); osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+      gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+      osc.start(now); osc.stop(now + 0.1);
+    } else if (type === 'coin') {
+      osc.type = 'sine'; osc.frequency.setValueAtTime(987.77, now); osc.frequency.setValueAtTime(1318.51, now + 0.1);
+      gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.2, now + 0.1); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+      osc.start(now); osc.stop(now + 0.3);
+    } else if (type === 'wrong') {
+      osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now); osc.frequency.exponentialRampToValueAtTime(100, now + 0.3);
+      gain.gain.setValueAtTime(0.15, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+      osc.start(now); osc.stop(now + 0.3);
+    } else if (type === 'slash') {
+      osc.type = 'square'; osc.frequency.setValueAtTime(150, now); osc.frequency.exponentialRampToValueAtTime(20, now + 0.2);
+      gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+      osc.start(now); osc.stop(now + 0.2);
+    }
+  };
+
+  const speakWord = (text) => {
+    if (isAudioMuted || !('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const msg = new SpeechSynthesisUtterance(text);
+    msg.lang = 'en-US'; msg.rate = 0.85; msg.pitch = 1.1;
+    window.speechSynthesis.speak(msg);
+  };
+
+  // --- 魔王關倒數計時 ---
+  useEffect(() => {
+    let timerId;
+    if (scene === 'q3' && mode === 'game' && !isSlashing) {
+      timerId = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 0.1) {
+            playSFX('wrong');
+            setWrongAnimIdx(-1);
+            setTimeout(() => setWrongAnimIdx(null), 500);
+            setMistakes(mPrev => {
+              const currentQ = quests['q3'].data[questionIdx];
+              if (!mPrev.find(m => m.scene === 'q3' && m.qIdx === questionIdx)) {
+                return [...mPrev, { scene: 'q3', qIdx: questionIdx, task: quests['q3'].title, qText: `分辨字母: ${currentQ.char}`, correct: currentQ.answer, wrongSelected: "超時未答" }];
+              }
+              return mPrev;
+            });
+            return 5.0; 
+          }
+          return prev - 0.1;
+        });
+      }, 100);
+    }
+    return () => clearInterval(timerId);
+  }, [scene, mode, isSlashing, questionIdx]);
+
+  const quests = {
+    q1: {
+      title: '任務一：採集魔法果實',
+      desc: '唸出木牌上的單字，把對應果實裝進背包！',
+      data: [
+        { target: 'RED', options: ['Blueberry', 'Apple', 'Banana'], answer: 'Apple' },
+        { target: 'YELLOW', options: ['Banana', 'Grape', 'Strawberry'], answer: 'Banana' },
+        { target: 'BLUE', options: ['OrangeFruit', 'Apple', 'Blueberry'], answer: 'Blueberry' },
+        { target: 'PURPLE', options: ['Grape', 'Melon', 'Lemon'], answer: 'Grape' },
+        { target: 'ORANGE', options: ['Strawberry', 'OrangeFruit', 'Peach'], answer: 'OrangeFruit' },
+        { target: 'GREEN', options: ['Melon', 'Banana', 'Blueberry'], answer: 'Melon' },
+        { target: 'PINK', options: ['Peach', 'Lemon', 'Apple'], answer: 'Peach' },
+        { target: 'YELLOW', options: ['Lemon', 'Grape', 'OrangeFruit'], answer: 'Lemon' },
+        { target: 'RED', options: ['Melon', 'Strawberry', 'Peach'], answer: 'Strawberry' },
+        { target: 'PURPLE', options: ['Banana', 'Apple', 'Grape'], answer: 'Grape' },
+      ]
+    },
+    q2: {
+      title: '任務二：修復彩虹橋',
+      desc: '哪個字母木塊不見了？',
+      data: [
+        { seq: ['A', 'B', '?', 'D'], options: ['C', 'E', 'F'], answer: 'C' },
+        { seq: ['E', 'F', '?', 'H'], options: ['G', 'I', 'J'], answer: 'G' },
+        { seq: ['?', 'J', 'K', 'L'], options: ['I', 'H', 'M'], answer: 'I' },
+        { seq: ['O', 'P', 'Q', '?'], options: ['R', 'S', 'N'], answer: 'R' },
+        { seq: ['U', '?', 'W', 'X'], options: ['V', 'Y', 'T'], answer: 'V' },
+        { seq: ['?', 'B', 'C', 'D'], options: ['A', 'E', 'F'], answer: 'A' },
+        { seq: ['L', 'M', '?', 'O'], options: ['N', 'P', 'K'], answer: 'N' },
+        { seq: ['W', 'X', '?', 'Z'], options: ['Y', 'V', 'U'], answer: 'Y' },
+        { seq: ['H', 'I', 'J', '?'], options: ['K', 'L', 'G'], answer: 'K' },
+        { seq: ['S', '?', 'U', 'V'], options: ['T', 'R', 'W'], answer: 'T' },
+      ]
+    },
+    q3: {
+      title: '任務三：搗蛋雙胞胎',
+      desc: '發動劍氣！快在 5 秒內找出來！',
+      data: [
+        { char: 'b', options: ['b', 'd'], answer: 'b' },
+        { char: 'd', options: ['b', 'd'], answer: 'd' },
+        { char: 'b', options: ['b', 'd'], answer: 'b' },
+        { char: 'd', options: ['b', 'd'], answer: 'd' },
+        { char: 'p', options: ['p', 'q'], answer: 'p' },
+        { char: 'q', options: ['p', 'q'], answer: 'q' },
+        { char: 'p', options: ['p', 'q'], answer: 'p' },
+        { char: 'b', options: ['b', 'd'], answer: 'b' },
+        { char: 'q', options: ['p', 'q'], answer: 'q' },
+        { char: 'd', options: ['b', 'd'], answer: 'd' },
+      ]
+    },
+    q4: {
+      title: '任務四：尋找小動物',
+      desc: '唸出單字魔法，找出躲起來的動物！',
+      data: [
+        { answer: 'Dog', options: ['Cat', 'Dog', 'Bird'] },
+        { answer: 'Cat', options: ['Pig', 'Cat', 'Bear'] },
+        { answer: 'Bird', options: ['Bird', 'Dog', 'Pig'] },
+        { answer: 'Pig', options: ['Cat', 'Bear', 'Pig'] },
+        { answer: 'Bear', options: ['Bear', 'Bird', 'Dog'] },
+        { answer: 'Dog', options: ['Pig', 'Dog', 'Cat'] },
+        { answer: 'Pig', options: ['Bear', 'Cat', 'Pig'] },
+        { answer: 'Cat', options: ['Dog', 'Cat', 'Bird'] },
+        { answer: 'Bear', options: ['Pig', 'Bear', 'Bird'] },
+        { answer: 'Bird', options: ['Cat', 'Dog', 'Bird'] },
+      ]
+    },
+    q5: {
+      title: '任務五：語法精靈的契約',
+      desc: '選出正確的單字完成句子！',
+      data: [
+        { question: "I ___ Sherry.", options: ["am", "is", "are"], answer: "am" },
+        { question: "___ is it? It's an apple.", options: ["What", "How", "Who"], answer: "What" },
+        { question: "Are you happy? Yes, I ___.", options: ["am", "do", "is"], answer: "am" },
+        { question: "___ old are you?", options: ["How", "What", "Who"], answer: "How" },
+        { question: "It ___ a dog.", options: ["am", "is", "are"], answer: "is" },
+        { question: "___ you like apples?", options: ["Do", "Are", "Is"], answer: "Do" },
+        { question: "What ___ this?", options: ["is", "am", "are"], answer: "is" },
+        { question: "___ color is it?", options: ["What", "How", "Who"], answer: "What" },
+        { question: "She ___ my mom.", options: ["is", "am", "are"], answer: "is" },
+        { question: "I have ___ apple.", options: ["an", "a", "two"], answer: "an" }
+      ]
+    },
+    // --- 新增：Phonics 水晶分級鑑定 ---
+    q6: {
+      title: '隱藏試煉：鑑定水晶',
+      desc: '仔細聽水晶發出的聲音，選出正確的拼讀咒語！',
+      data: [
+        { word: 'bat', options: ['bat', 'bit', 'but'], answer: 'bat', level: 1 },
+        { word: 'fox', options: ['fox', 'fax', 'fix'], answer: 'fox', level: 1 },
+        { word: 'mug', options: ['mug', 'mag', 'meg'], answer: 'mug', level: 1 },
+        { word: 'ship', options: ['ship', 'chip', 'sop'], answer: 'ship', level: 2 },
+        { word: 'cake', options: ['cak', 'cake', 'cack'], answer: 'cake', level: 2 },
+        { word: 'bird', options: ['bird', 'bard', 'bord'], answer: 'bird', level: 3 },
+        { word: 'rain', options: ['ran', 'rain', 'rane'], answer: 'rain', level: 3 },
+        { word: 'rabbit', options: ['rabit', 'rabbit', 'rabbet'], answer: 'rabbit', level: 4 },
+        { word: 'jumping', options: ['jumped', 'jumping', 'jumps'], answer: 'jumping', level: 4 },
+        { word: 'unhappy', options: ['inhappy', 'unhappy', 'anhappy'], answer: 'unhappy', level: 4 },
+      ]
+    }
+  };
+
+  useEffect(() => {
+    if (mode === 'game' && hasStarted) {
+      const currentQuest = quests[scene].data[questionIdx];
+      setTimeout(() => {
+        if (scene === 'q1') speakWord(currentQuest.target);
+        else if (scene === 'q2') speakWord(`Where is ${currentQuest.answer}`);
+        else if (scene === 'q3') speakWord(`Find ${currentQuest.answer}`);
+        else if (scene === 'q4') speakWord(currentQuest.answer);
+        else if (scene === 'q5') speakWord(currentQuest.question.replace('___', 'blank'));
+        else if (scene === 'q6') speakWord(currentQuest.word);
+      }, 300);
+    }
+  }, [scene, mode, questionIdx, hasStarted]);
+
+  const dialogues = {
+    intro: [
+      { speaker: '🐰 兔兔村長', text: '呀！是 Sherry 魔法使！妳終於來了！(抖動)' },
+      { speaker: '🐰 兔兔村長', text: '我們吉伊小村遇到了困難，需要妳的英文魔法來幫忙呀...' },
+      { speaker: '👧🏻 魔法使 Sherry', text: '沒問題！包在我身上！✨' },
+      { speaker: '🐰 兔兔村長', text: '拜託妳了！準備好我們就出發去森林吧！Go Go！' }
+    ],
+    mid1: [
+      { speaker: '🐰 兔兔村長', text: '哇！Sherry 採果實的速度太神了吧！🌟' },
+      { speaker: '🐰 兔兔村長', text: '前面就是彩虹木橋了，但是橋好像破了幾個大洞...' },
+      { speaker: '🐰 兔兔村長', text: '可以用妳的「字母魔法」修好它嗎？' }
+    ],
+    mid2: [
+      { speaker: '🐰 兔兔村長', text: '太厲害了！橋修好了！(開心地轉圈圈) 💞' },
+      { speaker: '🐰 兔兔村長', text: '等等... 橋對面有一大群「搗蛋魔物」擋住了去路！' },
+      { speaker: '🐰 兔兔村長', text: '牠們是容易搞混的 b/d 還有 p/q！Sherry，準備極速戰鬥！' }
+    ],
+    mid3: [
+      { speaker: '🐰 兔兔村長', text: '呼～終於打跑魔物了！Sherry 真的好厲害！' },
+      { speaker: '🐰 兔兔村長', text: '咦？村莊的小動物因為剛剛的騷動都躲起來了...' },
+      { speaker: '🐰 兔兔村長', text: 'Sherry，可以用妳的「單字魔法」唸出名字，把它們找出來嗎？' }
+    ],
+    mid4: [
+      { speaker: '🐰 兔兔村長', text: '太棒了！小動物都平安回家了！' },
+      { speaker: '🐰 兔兔村長', text: '進入村莊的大門被「語法精靈」鎖住了...' },
+      { speaker: '🐰 兔兔村長', text: '她說要完成這 10 份魔法契約才能開門，我們一起挑戰吧！' }
+    ],
+    mid5: [
+      { speaker: '🐰 兔兔村長', text: '呀呼——！大門打開了！村莊得救了！' },
+      { speaker: '🐰 兔兔村長', text: 'Sherry 真的是最厲害的英文魔法使！我要給妳滿滿的星星！🌟' },
+      { speaker: '🐰 兔兔村長', text: '等等，村莊廣場中心有一顆發光的「鑑定水晶」！' },
+      { speaker: '🐰 兔兔村長', text: '它可以測出妳目前的自然發音 (Phonics) 等級喔！仔細聽它發出的聲音，選出正確的咒語！' }
+    ],
+    outro: [
+      { speaker: '🐰 兔兔村長', text: '太精采了！水晶試煉完成！' },
+      { speaker: '🐰 兔兔村長', text: 'Sherry，我們一起來看看妳這次的「魔法冒險報告」與「分級結果」吧！' }
+    ]
+  };
+
+  const handleNextDialogue = () => {
+    playSFX('pop'); 
+    const currentDialogues = dialogues[scene];
+    if (dialogueIndex < currentDialogues.length - 1) {
+      setDialogueIndex(prev => prev + 1);
+    } else {
+      if (scene === 'intro') { setScene('q1'); setMode('game'); }
+      else if (scene === 'mid1') { setScene('q2'); setMode('game'); }
+      else if (scene === 'mid2') { setScene('q3'); setMode('game'); setMonsterHp(10); setTimeLeft(5.0); } 
+      else if (scene === 'mid3') { setScene('q4'); setMode('game'); } 
+      else if (scene === 'mid4') { setScene('q5'); setMode('game'); } 
+      else if (scene === 'mid5') { setScene('q6'); setMode('game'); } 
+      else if (scene === 'outro') { setScene('results'); setMode('results'); }
+      setDialogueIndex(0);
+    }
+  };
+
+  const handleAnswer = (isCorrect, idx) => {
+    if (activeAnimIdx !== null || isSlashing) return;
+
+    if (isCorrect) {
+      if (scene === 'q3') playSFX('slash');
+      else playSFX('coin');
+      
+      if (scene !== 'q6') speakWord(quests[scene].data[questionIdx].answer);
+
+      setActiveAnimIdx(idx);
+      setShowCombo(true);
+      setStars(prev => prev + 100); 
+
+      if (scene === 'q1') {
+        setTimeout(() => advanceQuestion(), 800);
+      } else if (scene === 'q2') {
+        setBridgeFilled(true); setTimeout(() => advanceQuestion(), 1000);
+      } else if (scene === 'q3') {
+        setIsSlashing(true); setMonsterHp(prev => prev - 1);
+        setTimeout(() => { advanceQuestion(); setTimeLeft(5.0); }, 1000);
+      } else if (scene === 'q4') {
+        setTimeout(() => advanceQuestion(), 900);
+      } else if (scene === 'q5') {
+        setBridgeFilled(true); setTimeout(() => advanceQuestion(), 1000);
+      } else if (scene === 'q6') {
+        setTimeout(() => advanceQuestion(), 800);
+      }
+    } else {
+      playSFX('wrong');
+      setWrongAnimIdx(idx);
+      setTimeout(() => setWrongAnimIdx(null), 400);
+
+      // --- 紀錄錯題分析 ---
+      setMistakes(prev => {
+        const currentQ = quests[scene].data[questionIdx];
+        let qText = "";
+        let wrongOpt = currentQ.options ? currentQ.options[idx] : "錯誤選項";
+
+        if (scene === 'q1') qText = `目標單字: ${currentQ.target}`;
+        else if (scene === 'q2') qText = `字母順序: ${currentQ.seq.join(' ')}`;
+        else if (scene === 'q3') qText = `分辨字母: ${currentQ.char}`;
+        else if (scene === 'q4') qText = `尋找動物: ${currentQ.answer}`;
+        else if (scene === 'q5') qText = `填空: ${currentQ.question}`;
+        else if (scene === 'q6') qText = `聽音拼字: ${currentQ.word} (Level ${currentQ.level})`;
+
+        const exists = prev.find(m => m.scene === scene && m.qIdx === questionIdx);
+        if (!exists) {
+          return [...prev, { scene, qIdx: questionIdx, task: quests[scene].title, qText, correct: currentQ.answer, wrongSelected: wrongOpt }];
+        }
+        return prev;
+      });
+    }
+  };
+
+  const advanceQuestion = () => {
+    setActiveAnimIdx(null); setShowCombo(false); setIsSlashing(false); setBridgeFilled(false);
+    const currentQuestData = quests[scene].data;
+    if (questionIdx < currentQuestData.length - 1) {
+      setQuestionIdx(prev => prev + 1);
+    } else {
+      setQuestionIdx(0); setMode('dialogue');
+      if (scene === 'q1') setScene('mid1');
+      else if (scene === 'q2') setScene('mid2');
+      else if (scene === 'q3') setScene('mid3');
+      else if (scene === 'q4') setScene('mid4');
+      else if (scene === 'q5') setScene('mid5');
+      else if (scene === 'q6') setScene('outro');
+    }
+  };
+
+  const renderFruit = (type, className) => {
+    if (type === 'Apple') return <Apple className={className} />;
+    if (type === 'Blueberry') return <Blueberry className={className} />;
+    if (type === 'Banana') return <Banana className={className} />;
+    if (type === 'Grape') return <Grape className={className} />;
+    if (type === 'OrangeFruit') return <OrangeFruit className={className} />;
+    if (type === 'Melon') return <Melon className={className} />;
+    if (type === 'Strawberry') return <Strawberry className={className} />;
+    if (type === 'Peach') return <Peach className={className} />;
+    if (type === 'Lemon') return <Lemon className={className} />;
+  };
+
+  const renderAnimal = (type, className) => {
+    if (type === 'Dog') return <Dog className={className} />;
+    if (type === 'Cat') return <Cat className={className} />;
+    if (type === 'Bird') return <Bird className={className} />;
+    if (type === 'Pig') return <Pig className={className} />;
+    if (type === 'Bear') return <Bear className={className} />;
+  }
+
+  // --- 判定 Phonics Level ---
+  const getPhonicsLevelReport = () => {
+    const q6Mistakes = mistakes.filter(m => m.scene === 'q6');
+    if (q6Mistakes.length === 0) {
+      return { 
+        level: "Level 4+ 高階解碼 (已完全掌握)", 
+        desc: "太神啦！所有的自然發音規則 Sherry 都懂，可以準備挑戰長篇故事囉！",
+        color: "text-purple-600 bg-purple-100 border-purple-300"
+      };
+    }
+    const firstMissIdx = Math.min(...q6Mistakes.map(m => m.qIdx));
+    if (firstMissIdx <= 2) {
+      return { 
+        level: "Level 1：基礎建立期 (CVC與短母音)", 
+        desc: "非常棒的出發點！我們從最基礎的 A-Z 音與三個字母的單字 (如 cat, pig) 開始打穩地基吧！",
+        color: "text-emerald-600 bg-emerald-100 border-emerald-300"
+      };
+    } else if (firstMissIdx <= 4) {
+      return { 
+        level: "Level 2：進階拼讀期 (混合音與 Magic e)", 
+        desc: "Sherry 已經很會唸短單字了！接下來我們來挑戰 sh, ch 還有神奇的魔法 e！",
+        color: "text-blue-600 bg-blue-100 border-blue-300"
+      };
+    } else if (firstMissIdx <= 6) {
+      return { 
+        level: "Level 3：複雜母音期 (母音組與 Bossy R)", 
+        desc: "基礎超紮實！接下來要對付最調皮的母音組合 (如 ai, ee) 以及跟著 r 的聲音囉！",
+        color: "text-orange-600 bg-orange-100 border-orange-300"
+      };
+    } else {
+      return { 
+        level: "Level 4：高階解碼與詞素 (多音節字)", 
+        desc: "發音底子已經很強了！我們準備挑戰很長的多音節單字與字尾變化吧！",
+        color: "text-rose-600 bg-rose-100 border-rose-300"
+      };
+    }
+  };
+
+  const getBackgroundScene = () => {
+    if (scene === 'intro' || scene === 'outro' || scene === 'results') {
+      return (
+        <div className="absolute inset-0 bg-gradient-to-b from-sky-200 to-green-300">
+           <div className="absolute top-10 left-10 w-32 h-16 bg-white rounded-full opacity-80 blur-[2px]"></div>
+           <div className="absolute top-20 right-20 w-40 h-20 bg-white rounded-full opacity-60 blur-[2px]"></div>
+           <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-green-400 rounded-t-[100%] shadow-[inset_0_10px_0_rgba(255,255,255,0.2)]"></div>
+        </div>
+      );
+    }
+    if (scene === 'q1' || scene === 'mid1') {
+      return (
+        <div className="absolute inset-0 bg-gradient-to-b from-green-200 to-emerald-400">
+           <div className="absolute bottom-20 left-10 w-40 h-40 bg-green-600 rounded-full opacity-50 blur-sm"></div>
+           <div className="absolute bottom-32 right-5 w-48 h-48 bg-emerald-600 rounded-full opacity-50 blur-sm"></div>
+           <div className="absolute bottom-0 left-0 right-0 h-24 bg-emerald-700"></div>
+        </div>
+      );
+    }
+    if (scene === 'q2' || scene === 'mid2') {
+      return (
+        <div className="absolute inset-0 bg-gradient-to-b from-orange-200 to-sky-400">
+           <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-blue-500 shadow-[inset_0_20px_0_rgba(255,255,255,0.3)]">
+             <div className="absolute top-10 left-20 w-32 h-2 bg-white/40 rounded-full"></div>
+             <div className="absolute top-20 right-20 w-24 h-2 bg-white/40 rounded-full"></div>
+           </div>
+        </div>
+      );
+    }
+    if (scene === 'q3') {
+      return (
+        <div className="absolute inset-0 bg-gradient-to-b from-indigo-900 to-purple-700">
+           <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-fuchsia-500 to-transparent"></div>
+           <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-slate-800 shadow-[inset_0_10px_0_rgba(168,85,247,0.4)] border-t-8 border-purple-500"></div>
+        </div>
+      );
+    }
+    if (scene === 'mid3' || scene === 'q4') {
+      return (
+        <div className="absolute inset-0 bg-gradient-to-b from-yellow-100 to-lime-300">
+           <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-green-500 rounded-t-[100%] shadow-[inset_0_20px_0_rgba(255,255,255,0.2)]"></div>
+           <div className="absolute bottom-20 left-10 w-32 h-32 bg-green-600 rounded-full opacity-40"></div>
+           <div className="absolute bottom-10 right-20 w-48 h-48 bg-green-600 rounded-full opacity-40"></div>
+        </div>
+      );
+    }
+    if (scene === 'mid4' || scene === 'q5') {
+      return (
+        <div className="absolute inset-0 bg-gradient-to-b from-amber-200 to-orange-400">
+           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[300px] md:w-[400px] h-[400px] bg-amber-900/20 rounded-t-[150px] blur-xl"></div>
+           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[250px] md:w-[350px] h-[350px] border-[16px] border-amber-600/50 rounded-t-[150px] shadow-[inset_0_0_50px_rgba(217,119,6,0.5)] flex items-center justify-center">
+              <BookOpen size={100} className="text-amber-100 opacity-50" />
+           </div>
+        </div>
+      );
+    }
+    if (scene === 'mid5' || scene === 'q6') {
+      return (
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-indigo-900 to-violet-900">
+           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-500/20 to-transparent"></div>
+           <div className="absolute bottom-0 left-0 right-0 h-1/4 bg-slate-900 shadow-[inset_0_10px_0_rgba(139,92,246,0.3)] border-t-4 border-violet-800"></div>
+           {/* 發光粒子 */}
+           <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-purple-300 rounded-full animate-ping"></div>
+           <div className="absolute top-1/3 right-1/4 w-3 h-3 bg-violet-300 rounded-full animate-pulse"></div>
+        </div>
+      );
+    }
+    return <div className="absolute inset-0 bg-[#FFF0F5]"></div>;
+  };
+
+  if (!hasStarted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-pink-200 to-purple-300 flex flex-col items-center justify-center p-6 relative overflow-hidden">
+        <div className="absolute top-10 left-10 w-32 h-32 bg-white rounded-full opacity-30 blur-xl"></div>
+        <div className="absolute bottom-10 right-10 w-40 h-40 bg-pink-400 rounded-full opacity-20 blur-xl"></div>
+        
+        <div className="bg-white/80 backdrop-blur-md p-10 md:p-16 rounded-[3rem] shadow-2xl text-center max-w-lg w-full border-4 border-white transform hover:scale-105 transition-transform">
+          <div className="flex justify-center mb-8 relative">
+             <BunnyNPC className="w-32 h-32 animate-bounce z-10" />
+             <SherryGirl className="w-32 h-32 absolute left-10 top-4 opacity-80" />
+          </div>
+          <h1 className="text-4xl md:text-5xl font-black text-purple-600 mb-4 leading-tight">
+            Sherry's Magic <br/> Adventure
+          </h1>
+          <p className="text-xl text-gray-600 mb-8 font-bold">打開聲音，準備出發！ 🎵</p>
+          <button 
+            onClick={initAudio}
+            className="w-full py-5 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-3xl font-black rounded-full shadow-[0_8px_0_rgb(168,85,247)] hover:shadow-[0_4px_0_rgb(168,85,247)] hover:translate-y-1 transition-all flex items-center justify-center gap-4"
+          >
+            <Play fill="currentColor" size={32} />
+            Start Game
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen font-sans relative flex flex-col items-center justify-center p-4 overflow-hidden">
+      <style>{customStyles}</style>
+      {getBackgroundScene()}
+
+      <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-50 max-w-4xl mx-auto w-full px-4">
+        <div className="flex gap-2">
+          <div className="flex items-center gap-2 bg-white/90 px-4 py-2 rounded-full shadow-[0_4px_0_#fbcfe8] border-2 border-pink-200">
+            <Heart className="text-pink-400 fill-pink-400 animate-pulse" size={20} />
+            <span className="font-bold text-pink-500 text-lg hidden md:inline">Sherry</span>
+          </div>
+          <button 
+            onClick={() => setIsAudioMuted(!isAudioMuted)}
+            className={`flex items-center justify-center w-12 h-12 rounded-full shadow-sm border-2 transition-all ${isAudioMuted ? 'bg-slate-200 border-slate-300 text-slate-500' : 'bg-blue-100 border-blue-200 text-blue-500 hover:bg-blue-200'}`}
+          >
+            {isAudioMuted ? <VolumeX size={24} /> : <Volume2 size={24} />}
+          </button>
+        </div>
+        
+        <div className="relative">
+          <div className="flex items-center gap-2 bg-white/90 px-4 py-2 rounded-full shadow-[0_4px_0_#fef08a] border-2 border-yellow-200">
+            <Star className="text-yellow-400 fill-yellow-400" size={20} />
+            <span className="font-black text-yellow-500 text-lg">{stars} EXP</span>
+          </div>
+          {showCombo && (
+            <div className="absolute -top-8 right-0 text-orange-500 font-black text-2xl anim-float-up drop-shadow-md whitespace-nowrap">
+              +100 Excellent! ✨
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="w-full max-w-4xl h-[650px] bg-white/40 backdrop-blur-md rounded-[3rem] shadow-2xl border-4 border-white/60 p-6 md:p-10 relative mt-12 flex flex-col z-10 overflow-hidden">
+        
+        {mode === 'dialogue' ? (
+          <div className="flex-1 flex flex-col justify-end relative h-full">
+            <div className="absolute bottom-36 left-0 right-0 flex justify-center items-end gap-4 md:gap-16 w-full">
+               <BunnyNPC className={`w-32 h-32 md:w-48 md:h-48 transform transition-transform duration-300 ${dialogues[scene][dialogueIndex].speaker.includes('兔兔') ? 'animate-bounce scale-110' : 'opacity-70'}`} />
+               <SherryGirl className={`w-32 h-32 md:w-48 md:h-48 transform transition-transform duration-300 ${dialogues[scene][dialogueIndex].speaker.includes('Sherry') ? 'animate-bounce scale-110' : 'opacity-70'}`} />
+            </div>
+
+            <div 
+              onClick={handleNextDialogue}
+              className="bg-white/95 rounded-[2rem] border-4 border-pink-300 shadow-[0_8px_0_#fbcfe8] p-6 cursor-pointer hover:bg-pink-50 transition-colors relative z-20 mx-4 md:mx-10"
+            >
+              <div className="absolute -top-5 left-6 bg-pink-500 text-white px-6 py-2 rounded-full font-black text-lg shadow-sm border-2 border-white">
+                {dialogues[scene][dialogueIndex].speaker}
+              </div>
+              <p className="text-xl md:text-3xl text-slate-700 font-bold leading-relaxed mt-4">
+                {dialogues[scene][dialogueIndex].text}
+              </p>
+              <div className="flex justify-end mt-2">
+                <ChevronRight className="text-pink-500 animate-pulse" size={32} />
+              </div>
+            </div>
+          </div>
+        ) : mode === 'results' ? (
+          <div className="flex-1 flex flex-col h-full relative z-20 overflow-y-auto custom-scrollbar pr-2">
+            <h2 className="text-3xl md:text-4xl font-black text-white drop-shadow-md text-center mb-6">
+              🌟 魔法冒險結算報告 🌟
+            </h2>
+            
+            {/* Phonics 鑑定結果區塊 */}
+            <div className={`rounded-[2rem] p-6 shadow-xl border-4 mb-6 bg-white/95 ${getPhonicsLevelReport().color}`}>
+               <div className="flex items-center gap-3 mb-4">
+                 <Sparkles className="w-8 h-8 fill-current" />
+                 <h3 className="text-2xl font-black">自然發音分級鑑定</h3>
+               </div>
+               <div className="bg-white/50 rounded-xl p-4 border border-current/20">
+                 <p className="text-xl font-bold mb-2">建議落點：{getPhonicsLevelReport().level}</p>
+                 <p className="font-medium opacity-90">{getPhonicsLevelReport().desc}</p>
+               </div>
+            </div>
+
+            <div className="bg-white/95 backdrop-blur-md rounded-[2rem] p-6 shadow-xl border-4 border-pink-200">
+              <h3 className="text-2xl font-black text-slate-700 mb-6 flex items-center gap-2">
+                <BookOpen className="text-pink-500"/> 錯題分析簿
+              </h3>
+              
+              {mistakes.length === 0 ? (
+                <div className="text-center py-10">
+                  <Trophy size={80} className="text-yellow-400 mx-auto mb-4 animate-bounce" fill="currentColor"/>
+                  <h3 className="text-3xl font-black text-slate-700">太完美了！</h3>
+                  <p className="text-slate-500 mt-2 font-bold text-lg">Sherry 完全沒有答錯任何一題，是天才魔法使！</p>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-4">
+                  {mistakes.map((m, i) => (
+                    <div key={i} className="bg-slate-50 border-2 border-slate-200 rounded-xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                      <div>
+                        <span className="text-xs font-bold bg-pink-100 text-pink-600 px-3 py-1 rounded-full mb-2 inline-block shadow-sm">
+                          {m.task}
+                        </span>
+                        <p className="font-bold text-slate-700 text-lg">{m.qText}</p>
+                      </div>
+                      <div className="flex items-center gap-3 bg-white p-3 rounded-xl border-2 border-slate-100 shadow-sm min-w-[200px] justify-between">
+                        <div className="text-center flex-1">
+                          <p className="text-xs text-slate-400 font-bold mb-1">Sherry選了</p>
+                          <p className="text-rose-500 font-bold line-through">{m.wrongSelected}</p>
+                        </div>
+                        <ChevronRight size={20} className="text-slate-300"/>
+                        <div className="text-center flex-1">
+                          <p className="text-xs text-slate-400 font-bold mb-1">正確答案</p>
+                          <p className="text-emerald-500 font-black text-lg">{m.correct}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              <div className="mt-8 flex justify-center">
+                <button
+                  onClick={() => {
+                    setScene('intro'); setMode('dialogue'); setStars(0); setMistakes([]);
+                  }}
+                  className="px-10 py-5 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-2xl font-black rounded-full shadow-[0_6px_0_rgb(168,85,247)] hover:-translate-y-1 hover:shadow-[0_4px_0_rgb(168,85,247)] active:translate-y-2 active:shadow-none transition-all flex items-center gap-3"
+                >
+                  再玩一次 🚀
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1 flex flex-col h-full relative z-20">
+            <div className="text-center mb-6 relative">
+              <span className="inline-block bg-white/80 text-slate-600 px-6 py-2 rounded-full text-lg font-black mb-2 shadow-sm border-2 border-white">
+                {quests[scene].title}
+              </span>
+              <h2 className="text-3xl md:text-4xl font-black text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)]">
+                {quests[scene].desc}
+              </h2>
+
+              <div className="w-48 md:w-64 h-3 bg-white/30 rounded-full mx-auto mt-4 overflow-hidden shadow-inner relative">
+                <div 
+                  className="h-full bg-gradient-to-r from-yellow-300 to-yellow-500 transition-all duration-500"
+                  style={{ width: `${((questionIdx) / 10) * 100}%` }}
+                />
+              </div>
+              <div className="text-white/90 text-sm font-bold mt-1 tracking-widest drop-shadow-md">
+                {questionIdx + 1} / 10
+              </div>
+            </div>
+
+            {/* --- 任務一：白板拼讀單字 --- */}
+            {scene === 'q1' && (
+              <div className="flex-1 flex flex-col items-center justify-center">
+                <div 
+                  onClick={() => speakWord(quests['q1'].data[questionIdx].target)}
+                  className={`cursor-pointer bg-white/95 backdrop-blur-sm rounded-3xl px-12 py-6 mb-12 shadow-[0_8px_0_rgba(0,0,0,0.1)] border-4 border-slate-300 transform rotate-2 hover:scale-105 transition-transform flex items-center gap-4`}
+                >
+                  <Volume2 className="text-slate-400" size={32} />
+                  <span className="text-5xl md:text-7xl font-black text-slate-700 drop-shadow-sm tracking-widest">
+                    {quests['q1'].data[questionIdx].target}
+                  </span>
+                </div>
+                
+                <div className="flex gap-4 md:gap-12 w-full justify-center">
+                  {quests['q1'].data[questionIdx].options.map((opt, idx) => {
+                    const isCorrect = opt === quests['q1'].data[questionIdx].answer;
+                    const isAnimating = activeAnimIdx === idx;
+                    const isWrongAnim = wrongAnimIdx === idx;
+                    
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => handleAnswer(isCorrect, idx)}
+                        className={`w-24 h-24 md:w-36 md:h-36 bg-white/50 backdrop-blur-sm rounded-[2.5rem] p-3 md:p-4 shadow-[0_8px_0_rgba(255,255,255,0.5)] border-4 border-white transition-all flex items-center justify-center
+                          ${isAnimating ? 'anim-fly-bag' : 'hover:-translate-y-2 active:translate-y-2 active:shadow-none'}
+                          ${isWrongAnim ? 'anim-shake bg-red-100 border-red-300' : ''}
+                        `}
+                      >
+                        {renderFruit(opt, "w-full h-full drop-shadow-xl")}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* --- 任務二：修復彩虹橋 --- */}
+            {scene === 'q2' && (
+              <div className="flex-1 flex flex-col items-center justify-center">
+                <div className="w-full h-40 bg-amber-800/80 backdrop-blur-sm flex items-center justify-center gap-2 md:gap-4 px-4 md:px-6 rounded-2xl border-y-[12px] border-amber-900 shadow-2xl relative mb-12">
+                  {quests['q2'].data[questionIdx].seq.map((char, idx) => {
+                    const isHole = char === '?';
+                    return (
+                      <div 
+                        key={idx} 
+                        onClick={() => isHole ? speakWord(`Where is ${quests['q2'].data[questionIdx].answer}`) : speakWord(char)}
+                        className={`w-14 h-24 md:w-24 md:h-32 flex items-center justify-center rounded-lg text-4xl md:text-6xl font-black transition-all duration-500 cursor-pointer
+                        ${isHole && !bridgeFilled ? 'bg-transparent border-[6px] border-dashed border-amber-900/50 shadow-inner' : ''}
+                        ${isHole && bridgeFilled ? 'bg-yellow-300 text-yellow-800 border-4 border-yellow-100 shadow-[0_0_30px_rgba(253,224,71,0.8)] scale-110' : ''}
+                        ${!isHole ? 'bg-amber-500 text-amber-900 border-4 border-amber-700 shadow-[0_8px_0_#78350f]' : ''}
+                      `}>
+                        {isHole && bridgeFilled ? quests['q2'].data[questionIdx].answer : char}
+                      </div>
+                    )
+                  })}
+                </div>
+
+                <div className="flex gap-4 md:gap-10">
+                  {quests['q2'].data[questionIdx].options.map((option, idx) => {
+                    const isCorrect = option === quests['q2'].data[questionIdx].answer;
+                    const isAnimating = activeAnimIdx === idx;
+                    const isWrongAnim = wrongAnimIdx === idx;
+                    
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => handleAnswer(isCorrect, idx)}
+                        disabled={bridgeFilled}
+                        className={`w-16 h-20 md:w-24 md:h-28 bg-amber-400 border-4 border-amber-200 text-amber-900 rounded-xl text-4xl md:text-5xl font-black flex items-center justify-center transition-all duration-300
+                          ${isAnimating ? 'opacity-0 scale-50' : 'shadow-[0_8px_0_#92400e] hover:bg-amber-300 hover:-translate-y-2 active:translate-y-2 active:shadow-none'}
+                          ${isWrongAnim ? 'anim-shake bg-red-400 text-white border-red-200 shadow-[0_8px_0_#991b1b]' : ''}
+                        `}
+                      >
+                        {option}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* --- 任務三：搗蛋魔王 --- */}
+            {scene === 'q3' && (
+              <div className="flex-1 flex flex-col items-center justify-center">
+                <div className="w-full max-w-sm mx-auto mb-4 bg-slate-800 rounded-full h-4 border-2 border-slate-600 overflow-hidden relative shadow-inner">
+                  <div 
+                    className={`h-full transition-all duration-[100ms] ${timeLeft < 2 ? 'bg-red-500' : 'bg-yellow-400'}`}
+                    style={{ width: `${(timeLeft / 5) * 100}%` }}
+                  ></div>
+                  <Clock className="absolute top-1/2 -translate-y-1/2 left-2 text-slate-800/50 w-3 h-3" />
+                </div>
+
+                <div className="flex flex-col md:flex-row items-center justify-center gap-2 mb-6 bg-slate-900/50 px-6 py-3 rounded-[2rem] border-2 border-slate-700 max-w-sm mx-auto">
+                  <span className="text-white font-bold md:mr-2 text-sm tracking-wider">Boss HP</span>
+                  <div className="flex gap-1 flex-wrap justify-center w-full md:w-auto">
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((hp) => (
+                      <Heart key={hp} className={`w-5 h-5 ${hp <= monsterHp ? 'text-red-500 fill-red-500 drop-shadow-[0_0_5px_rgba(239,68,68,0.8)]' : 'text-slate-600 fill-slate-600'}`} />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="relative mb-8 md:mb-12 cursor-pointer" onClick={() => speakWord(`Find ${quests['q3'].data[questionIdx].answer}`)}>
+                  <Monster 
+                    char={quests['q3'].data[questionIdx].char} 
+                    isHurt={isSlashing} 
+                    isWrong={wrongAnimIdx === -1}
+                    className={`w-48 h-48 md:w-56 md:h-56 drop-shadow-2xl transition-transform ${isSlashing || wrongAnimIdx === -1 ? 'anim-shake scale-95' : 'animate-[bounce_2s_infinite]'}`} 
+                  />
+                  
+                  {isSlashing && (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
+                      <div className="w-full h-4 bg-yellow-200 rotate-45 anim-slash shadow-[0_0_20px_#fef08a]"></div>
+                      <div className="absolute w-full h-4 bg-white -rotate-45 anim-slash shadow-[0_0_20px_#fff]" style={{animationDelay: '0.1s'}}></div>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex gap-6 md:gap-16">
+                  {quests['q3'].data[questionIdx].options.map((opt, idx) => {
+                    const isCorrect = opt === quests['q3'].data[questionIdx].answer;
+                    const isWrongAnim = wrongAnimIdx === idx;
+                    
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => handleAnswer(isCorrect, idx)}
+                        disabled={isSlashing}
+                        className={`px-10 md:px-12 py-4 md:py-6 border-4 text-white rounded-[2rem] text-5xl md:text-6xl font-serif font-black flex items-center gap-4 transition-all
+                          ${isWrongAnim ? 'anim-shake bg-slate-500 border-slate-300 shadow-[0_10px_0_#334155]' : 'bg-rose-500 border-rose-300 shadow-[0_10px_0_#9f1239] hover:bg-rose-400 hover:-translate-y-2 active:translate-y-2 active:shadow-none'}
+                        `}
+                      >
+                        <Sword size={36} className={isWrongAnim ? "text-slate-300" : "text-rose-200"} />
+                        {opt}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* --- 任務四：躲貓貓 --- */}
+            {scene === 'q4' && (
+              <div className="flex-1 flex flex-col items-center justify-center">
+                <div 
+                  onClick={() => speakWord(quests['q4'].data[questionIdx].answer)}
+                  className="bg-amber-700 text-white border-[6px] border-amber-900 rounded-2xl px-12 md:px-20 py-4 md:py-6 mb-12 shadow-[0_10px_0_#451a03] transform rotate-1 cursor-pointer hover:scale-105 transition-transform relative flex items-center gap-4"
+                >
+                  <Volume2 className="text-amber-300" size={40} />
+                  <span className="text-5xl md:text-7xl font-black tracking-wider drop-shadow-md">
+                    {quests['q4'].data[questionIdx].answer}
+                  </span>
+                </div>
+
+                <div className="flex gap-4 md:gap-10 w-full justify-center">
+                  {quests['q4'].data[questionIdx].options.map((opt, idx) => {
+                    const isCorrect = opt === quests['q4'].data[questionIdx].answer;
+                    const isAnimating = activeAnimIdx === idx;
+                    const isWrongAnim = wrongAnimIdx === idx;
+                    
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => handleAnswer(isCorrect, idx)}
+                        className={`w-24 h-32 md:w-36 md:h-44 bg-lime-50 border-4 border-lime-400 rounded-[2rem] p-4 shadow-[0_8px_0_#65a30d] flex items-end justify-center relative transition-all overflow-hidden
+                          ${isAnimating ? 'anim-float-up opacity-0' : 'hover:-translate-y-2 active:translate-y-2 active:shadow-none'}
+                          ${isWrongAnim ? 'anim-shake bg-red-100 border-red-400 shadow-[0_8px_0_#f87171]' : ''}
+                        `}
+                      >
+                        <div className={`relative z-10 w-full h-full pb-2 ${isAnimating ? 'animate-bounce' : ''}`}>
+                          {renderAnimal(opt, "w-full h-full drop-shadow-lg")}
+                        </div>
+                        <div className="absolute bottom-[-15%] left-[-10%] w-[120%] h-[50%] bg-lime-500 rounded-t-[50%] z-20 border-t-4 border-lime-400"></div>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* --- 任務五：語法契約 --- */}
+            {scene === 'q5' && (
+              <div className="flex-1 flex flex-col items-center justify-center">
+                <div 
+                  onClick={() => speakWord(quests['q5'].data[questionIdx].question.replace('___', 'blank'))}
+                  className="bg-amber-100/90 backdrop-blur-md border-[8px] border-amber-300 rounded-3xl w-full max-w-lg p-8 md:p-12 mb-10 shadow-[0_10px_0_#d97706] relative cursor-pointer hover:scale-[1.02] transition-transform"
+                >
+                   <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-amber-500 text-white px-6 py-2 rounded-full font-bold border-4 border-white shadow-sm whitespace-nowrap">
+                     ✨ 魔法契約 ✨
+                   </div>
+                   <p className="text-3xl md:text-5xl font-black text-amber-900 text-center leading-relaxed">
+                     {quests['q5'].data[questionIdx].question.split('___').map((part, i, arr) => (
+                       <React.Fragment key={i}>
+                         {part}
+                         {i < arr.length - 1 && (
+                           <span className={`inline-block border-b-4 mx-2 min-w-[3em] text-center transition-all duration-500
+                             ${bridgeFilled ? 'border-green-400 text-green-500 drop-shadow-[0_0_10px_rgba(74,222,128,0.8)] scale-110' : 'border-amber-400 text-transparent'}
+                           `}>
+                             {bridgeFilled ? quests['q5'].data[questionIdx].answer : '_____'}
+                           </span>
+                         )}
+                       </React.Fragment>
+                     ))}
+                   </p>
+                </div>
+
+                <div className="flex flex-wrap gap-4 md:gap-8 w-full justify-center">
+                  {quests['q5'].data[questionIdx].options.map((opt, idx) => {
+                    const isCorrect = opt === quests['q5'].data[questionIdx].answer;
+                    const isAnimating = activeAnimIdx === idx;
+                    const isWrongAnim = wrongAnimIdx === idx;
+                    
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => handleAnswer(isCorrect, idx)}
+                        disabled={bridgeFilled}
+                        className={`px-6 py-4 md:px-10 md:py-6 bg-white border-4 border-amber-200 text-amber-700 rounded-2xl text-2xl md:text-4xl font-black transition-all duration-300
+                          ${isAnimating ? 'opacity-0 scale-50' : 'shadow-[0_8px_0_#fbbf24] hover:bg-amber-50 hover:-translate-y-2 active:translate-y-2 active:shadow-none'}
+                          ${isWrongAnim ? 'anim-shake bg-red-400 text-white border-red-200 shadow-[0_8px_0_#991b1b]' : ''}
+                        `}
+                      >
+                        {opt}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* --- 新增 任務六：Phonics 鑑定水晶 --- */}
+            {scene === 'q6' && (
+              <div className="flex-1 flex flex-col items-center justify-center">
+                <div className="text-center mb-8">
+                  <div 
+                    onClick={() => speakWord(quests['q6'].data[questionIdx].word)}
+                    className="relative w-48 h-48 md:w-56 md:h-56 mx-auto cursor-pointer hover:scale-105 transition-transform"
+                  >
+                    <Crystal className="w-full h-full drop-shadow-[0_0_30px_rgba(167,139,250,0.6)]" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                       <Volume2 className="text-white drop-shadow-md" size={48} />
+                    </div>
+                  </div>
+                  <p className="text-violet-200 font-bold mt-4 tracking-widest text-lg">
+                    Level {quests['q6'].data[questionIdx].level} 測試中...
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-4 md:gap-8 w-full justify-center px-4">
+                  {quests['q6'].data[questionIdx].options.map((opt, idx) => {
+                    const isCorrect = opt === quests['q6'].data[questionIdx].answer;
+                    const isAnimating = activeAnimIdx === idx;
+                    const isWrongAnim = wrongAnimIdx === idx;
+                    
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => handleAnswer(isCorrect, idx)}
+                        className={`px-8 py-5 md:px-12 md:py-6 bg-slate-800/80 backdrop-blur-md border-4 border-violet-400 text-violet-100 rounded-3xl text-3xl md:text-5xl font-black font-serif transition-all duration-300
+                          ${isAnimating ? 'opacity-0 scale-50' : 'shadow-[0_8px_0_#5b21b6] hover:bg-slate-700 hover:-translate-y-2 active:translate-y-2 active:shadow-none'}
+                          ${isWrongAnim ? 'anim-shake bg-red-900/80 text-white border-red-500 shadow-[0_8px_0_#7f1d1d]' : ''}
+                        `}
+                      >
+                        {opt}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
