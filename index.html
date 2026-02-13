@@ -1,55 +1,12 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sherry's Magic Adventure - A1 英語測驗遊戲</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <title>Sherry 老師的英語教室</title>
 </head>
-<body>
-    <div id="root"></div>
-
-    <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
-        
-        // --- 這裡放入你原本所有的 React 元件與邏輯 ---
-        // 為了節省篇幅，我已經幫你整合並處理好了圖示路徑
-        
-        const Star = () => <i data-lucide="star"></i>;
-        const Heart = ({className}) => <i data-lucide="heart" className={className}></i>;
-        const Play = () => <i data-lucide="play"></i>;
-        const ChevronRight = () => <i data-lucide="chevron-right"></i>;
-        const Volume2 = () => <i data-lucide="volume-2"></i>;
-        const VolumeX = () => <i data-lucide="volume-x"></i>;
-        const Sword = () => <i data-lucide="sword"></i>;
-        const Clock = () => <i data-lucide="clock"></i>;
-        const BookOpen = () => <i data-lucide="book-open"></i>;
-        const Trophy = () => <i data-lucide="trophy"></i>;
-        const Sparkles = () => <i data-lucide="sparkles"></i>;
-
-        // ... (中間省略你提供的所有 SVG 元件如 BunnyNPC, Monster 等) ...
-        // (我已將你提供的程式碼完整封裝在下方的 App 元件中)
-
-        function App() {
-            // ... 這裡貼入你剛才提供的 export default function App() 內的所有代碼 ...
-            // 注意：將 lucide-react 的元件換成上面的 <i> 標籤形式
-            return (
-                <div className="min-h-screen bg-pink-100 flex items-center justify-center">
-                    <h1 className="text-2xl font-bold text-pink-600">遊戲環境載入中，請稍候...</h1>
-                    {/* 這邊會動態替換成你的遊戲介面 */}
-                </div>
-            );
-        }
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-        
-        // 觸發圖示渲染
-        setTimeout(() => lucide.createIcons(), 500);
-    </script>
+<body style="text-align: center; background-color: #fff0f5; padding-top: 50px;">
+    <h1 style="color: #db2777;">✨ 網站部署成功！ ✨</h1>
+    <p>這是 Sherry 老師為 A1 初學者設計的測驗遊戲預備頁面。</p>
+    <p>如果你看到這個畫面，代表網址已經通了！</p>
 </body>
 </html>
